@@ -8,191 +8,191 @@ import (
 )
 
 func TestFieldElementValidation(t *testing.T) {
-	// fe
-	zero := new(fe).zero()
-	if !zero.isValid() {
-		t.Fatal("zero must be valid")
+	// Fe
+	zero := new(Fe).Zero()
+	if !zero.IsValid() {
+		t.Fatal("Zero must be valid")
 	}
-	one := new(fe).one()
-	if !one.isValid() {
-		t.Fatal("one must be valid")
+	one := new(Fe).One()
+	if !one.IsValid() {
+		t.Fatal("One must be valid")
 	}
-	if modulus.isValid() {
+	if modulus.IsValid() {
 		t.Fatal("modulus must be invalid")
 	}
-	n := modulus.big()
+	n := modulus.Big()
 	n.Add(n, big.NewInt(1))
-	if new(fe).setBig(n).isValid() {
+	if new(Fe).SetBig(n).IsValid() {
 		t.Fatal("number greater than modulus must be invalid")
 	}
 }
 
 func TestFieldElementEquality(t *testing.T) {
-	// fe
-	zero := new(fe).zero()
-	if !zero.equal(zero) {
+	// Fe
+	zero := new(Fe).Zero()
+	if !zero.Equal(zero) {
 		t.Fatal("0 == 0")
 	}
-	one := new(fe).one()
-	if !one.equal(one) {
+	one := new(Fe).One()
+	if !one.Equal(one) {
 		t.Fatal("1 == 1")
 	}
-	a, _ := new(fe).rand(rand.Reader)
-	if !a.equal(a) {
+	a, _ := new(Fe).Rand(rand.Reader)
+	if !a.Equal(a) {
 		t.Fatal("a == a")
 	}
-	b := new(fe)
+	b := new(Fe)
 	add(b, a, one)
-	if a.equal(b) {
+	if a.Equal(b) {
 		t.Fatal("a != a + 1")
 	}
-	// fe2
-	zero2 := new(fe2).zero()
-	if !zero2.equal(zero2) {
+	// Fe2
+	zero2 := new(Fe2).Zero()
+	if !zero2.Equal(zero2) {
 		t.Fatal("0 == 0")
 	}
-	one2 := new(fe2).one()
-	if !one2.equal(one2) {
+	one2 := new(Fe2).One()
+	if !one2.Equal(one2) {
 		t.Fatal("1 == 1")
 	}
-	a2, _ := new(fe2).rand(rand.Reader)
-	if !a2.equal(a2) {
+	a2, _ := new(Fe2).Rand(rand.Reader)
+	if !a2.Equal(a2) {
 		t.Fatal("a == a")
 	}
-	b2 := new(fe2)
+	b2 := new(Fe2)
 	fp2Add(b2, a2, one2)
-	if a2.equal(b2) {
+	if a2.Equal(b2) {
 		t.Fatal("a != a + 1")
 	}
-	// fe6
-	zero6 := new(fe6).zero()
-	if !zero6.equal(zero6) {
+	// Fe6
+	zero6 := new(Fe6).Zero()
+	if !zero6.Equal(zero6) {
 		t.Fatal("0 == 0")
 	}
-	one6 := new(fe6).one()
-	if !one6.equal(one6) {
+	one6 := new(Fe6).One()
+	if !one6.Equal(one6) {
 		t.Fatal("1 == 1")
 	}
-	a6, _ := new(fe6).rand(rand.Reader)
-	if !a6.equal(a6) {
+	a6, _ := new(Fe6).Rand(rand.Reader)
+	if !a6.Equal(a6) {
 		t.Fatal("a == a")
 	}
-	b6 := new(fe6)
-	fp6Add(b6, a6, one6)
-	if a6.equal(b6) {
+	b6 := new(Fe6)
+	Fp6Add(b6, a6, one6)
+	if a6.Equal(b6) {
 		t.Fatal("a != a + 1")
 	}
-	// fe12
-	zero12 := new(fe12).zero()
-	if !zero12.equal(zero12) {
+	// Fe12
+	zero12 := new(Fe12).Zero()
+	if !zero12.IsEqual(zero12) {
 		t.Fatal("0 == 0")
 	}
-	one12 := new(fe12).one()
-	if !one12.equal(one12) {
+	one12 := new(Fe12).one()
+	if !one12.IsEqual(one12) {
 		t.Fatal("1 == 1")
 	}
-	a12, _ := new(fe12).rand(rand.Reader)
-	if !a12.equal(a12) {
+	a12, _ := new(Fe12).Rand(rand.Reader)
+	if !a12.IsEqual(a12) {
 		t.Fatal("a == a")
 	}
-	b12 := new(fe12)
-	fp12Add(b12, a12, one12)
-	if a12.equal(b12) {
+	b12 := new(Fe12)
+	Fp12Add(b12, a12, one12)
+	if a12.IsEqual(b12) {
 		t.Fatal("a != a + 1")
 	}
 
 }
 
 func TestFieldElementHelpers(t *testing.T) {
-	// fe
-	zero := new(fe).zero()
-	if !zero.isZero() {
-		t.Fatal("'zero' is not zero")
+	// Fe
+	zero := new(Fe).Zero()
+	if !zero.IsZero() {
+		t.Fatal("'Zero' is not Zero")
 	}
-	one := new(fe).one()
-	if !one.isOne() {
-		t.Fatal("'one' is not one")
+	one := new(Fe).One()
+	if !one.IsOne() {
+		t.Fatal("'One' is not One")
 	}
-	odd := new(fe).setBig(big.NewInt(1))
-	if !odd.isOdd() {
+	odd := new(Fe).SetBig(big.NewInt(1))
+	if !odd.IsOdd() {
 		t.Fatal("1 must be odd")
 	}
-	if odd.isEven() {
+	if odd.IsEven() {
 		t.Fatal("1 must not be even")
 	}
-	even := new(fe).setBig(big.NewInt(2))
-	if !even.isEven() {
+	even := new(Fe).SetBig(big.NewInt(2))
+	if !even.IsEven() {
 		t.Fatal("2 must be even")
 	}
-	if even.isOdd() {
+	if even.IsOdd() {
 		t.Fatal("2 must not be odd")
 	}
-	// fe2
-	zero2 := new(fe2).zero()
-	if !zero2.isZero() {
-		t.Fatal("'zero' is not zero, 2")
+	// Fe2
+	zero2 := new(Fe2).Zero()
+	if !zero2.IsZero() {
+		t.Fatal("'Zero' is not Zero, 2")
 	}
-	one2 := new(fe2).one()
-	if !one2.isOne() {
-		t.Fatal("'one' is not one, 2")
+	one2 := new(Fe2).One()
+	if !one2.IsOne() {
+		t.Fatal("'One' is not One, 2")
 	}
-	// fe6
-	zero6 := new(fe6).zero()
-	if !zero6.isZero() {
-		t.Fatal("'zero' is not zero, 6")
+	// Fe6
+	zero6 := new(Fe6).Zero()
+	if !zero6.IsZero() {
+		t.Fatal("'Zero' is not Zero, 6")
 	}
-	one6 := new(fe6).one()
-	if !one6.isOne() {
-		t.Fatal("'one' is not one, 6")
+	one6 := new(Fe6).One()
+	if !one6.IsOne() {
+		t.Fatal("'One' is not One, 6")
 	}
-	// fe12
-	zero12 := new(fe12).zero()
+	// Fe12
+	zero12 := new(Fe12).Zero()
 	if !zero12.isZero() {
-		t.Fatal("'zero' is not zero, 12")
+		t.Fatal("'Zero' is not Zero, 12")
 	}
-	one12 := new(fe12).one()
+	one12 := new(Fe12).one()
 	if !one12.isOne() {
-		t.Fatal("'one' is not one, 12")
+		t.Fatal("'One' is not One, 12")
 	}
 }
 
 func TestFieldElementSerialization(t *testing.T) {
-	t.Run("zero", func(t *testing.T) {
+	t.Run("Zero", func(t *testing.T) {
 		in := make([]byte, fpByteSize)
-		fe := new(fe).setBytes(in)
-		if !fe.isZero() {
+		fe := new(Fe).SetBytes(in)
+		if !fe.IsZero() {
 			t.Fatal("serialization failed")
 		}
-		if !bytes.Equal(in, fe.bytes()) {
+		if !bytes.Equal(in, fe.Bytes()) {
 			t.Fatal("serialization failed")
 		}
 	})
-	t.Run("bytes", func(t *testing.T) {
+	t.Run("Bytes", func(t *testing.T) {
 		for i := 0; i < fuz; i++ {
-			a, _ := new(fe).rand(rand.Reader)
-			b := new(fe).setBytes(a.bytes())
-			if !a.equal(b) {
+			a, _ := new(Fe).Rand(rand.Reader)
+			b := new(Fe).SetBytes(a.Bytes())
+			if !a.Equal(b) {
 				t.Fatal("serialization failed")
 			}
 		}
 	})
-	t.Run("big", func(t *testing.T) {
+	t.Run("Big", func(t *testing.T) {
 		for i := 0; i < fuz; i++ {
-			a, _ := new(fe).rand(rand.Reader)
-			b := new(fe).setBig(a.big())
-			if !a.equal(b) {
+			a, _ := new(Fe).Rand(rand.Reader)
+			b := new(Fe).SetBig(a.Big())
+			if !a.Equal(b) {
 				t.Fatal("encoding or decoding failed")
 			}
 		}
 	})
-	t.Run("string", func(t *testing.T) {
+	t.Run("String", func(t *testing.T) {
 		for i := 0; i < fuz; i++ {
-			a, _ := new(fe).rand(rand.Reader)
-			b, err := new(fe).setString(a.string())
+			a, _ := new(Fe).Rand(rand.Reader)
+			b, err := new(Fe).SetString(a.String())
 			if err != nil {
 				t.Fatal(err)
 			}
-			if !a.equal(b) {
+			if !a.Equal(b) {
 				t.Fatal("encoding or decoding failed")
 			}
 		}
@@ -200,50 +200,50 @@ func TestFieldElementSerialization(t *testing.T) {
 }
 
 func TestFieldElementByteInputs(t *testing.T) {
-	zero := new(fe).zero()
+	zero := new(Fe).Zero()
 	in := make([]byte, 0)
-	a := new(fe).setBytes(in)
-	if !a.equal(zero) {
+	a := new(Fe).SetBytes(in)
+	if !a.Equal(zero) {
 		t.Fatal("serialization failed")
 	}
 	in = make([]byte, fpByteSize)
-	a = new(fe).setBytes(in)
-	if !a.equal(zero) {
+	a = new(Fe).SetBytes(in)
+	if !a.Equal(zero) {
 		t.Fatal("serialization failed")
 	}
 	in = make([]byte, fpByteSize+200)
-	a = new(fe).setBytes(in)
-	if !a.equal(zero) {
+	a = new(Fe).SetBytes(in)
+	if !a.Equal(zero) {
 		t.Fatal("serialization failed")
 	}
 	in = make([]byte, fpByteSize+1)
 	in[fpByteSize-1] = 1
-	normalOne := &fe{1, 0, 0, 0, 0, 0}
-	a = new(fe).setBytes(in)
-	if !a.equal(normalOne) {
+	normalOne := &Fe{1, 0, 0, 0, 0, 0}
+	a = new(Fe).SetBytes(in)
+	if !a.Equal(normalOne) {
 		t.Fatal("serialization failed")
 	}
 }
 
 func TestFieldElementCopy(t *testing.T) {
-	a, _ := new(fe).rand(rand.Reader)
-	b := new(fe).set(a)
-	if !a.equal(b) {
+	a, _ := new(Fe).Rand(rand.Reader)
+	b := new(Fe).Set(a)
+	if !a.Equal(b) {
 		t.Fatal("copy failed")
 	}
-	a2, _ := new(fe2).rand(rand.Reader)
-	b2 := new(fe2).set(a2)
-	if !a2.equal(b2) {
+	a2, _ := new(Fe2).Rand(rand.Reader)
+	b2 := new(Fe2).Set(a2)
+	if !a2.Equal(b2) {
 		t.Fatal("copy failed")
 	}
-	a6, _ := new(fe6).rand(rand.Reader)
-	b6 := new(fe6).set(a6)
-	if !a6.equal(b6) {
+	a6, _ := new(Fe6).Rand(rand.Reader)
+	b6 := new(Fe6).Set(a6)
+	if !a6.Equal(b6) {
 		t.Fatal("copy failed")
 	}
-	a12, _ := new(fe12).rand(rand.Reader)
-	b12 := new(fe12).set(a12)
-	if !a12.equal(b12) {
+	a12, _ := new(Fe12).Rand(rand.Reader)
+	b12 := new(Fe12).set(a12)
+	if !a12.IsEqual(b12) {
 		t.Fatal("copy failed2")
 	}
 }

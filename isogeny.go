@@ -1,12 +1,12 @@
 package bls12381
 
 // isogenyMapG1 applies 11-isogeny map for BLS12-381 G1 defined at draft-irtf-cfrg-hash-to-curve-06.
-func isogenyMapG1(x, y *fe) {
-	xNum, xDen, yNum, yDen := new(fe), new(fe), new(fe), new(fe)
-	xNum.set(isogenyConstansG1[0][15])
-	xDen.set(isogenyConstansG1[1][15])
-	yNum.set(isogenyConstansG1[2][15])
-	yDen.set(isogenyConstansG1[3][15])
+func isogenyMapG1(x, y *Fe) {
+	xNum, xDen, yNum, yDen := new(Fe), new(Fe), new(Fe), new(Fe)
+	xNum.Set(isogenyConstansG1[0][15])
+	xDen.Set(isogenyConstansG1[1][15])
+	yNum.Set(isogenyConstansG1[2][15])
+	yDen.Set(isogenyConstansG1[3][15])
 	for i := 14; i > -1; i-- {
 		mul(xNum, xNum, x)
 		mul(xDen, xDen, x)
@@ -17,54 +17,54 @@ func isogenyMapG1(x, y *fe) {
 		addAssign(yNum, isogenyConstansG1[2][i])
 		addAssign(yDen, isogenyConstansG1[3][i])
 	}
-	inverse(xDen, xDen)
-	inverse(yDen, yDen)
+	Inverse(xDen, xDen)
+	Inverse(yDen, yDen)
 	mul(x, xNum, xDen)
 	mul(yNum, yNum, yDen)
 	mul(y, y, yNum)
 }
 
 // isogenyMapG2 applies 3-isogeny map for BLS12-381 G2 defined at draft-irtf-cfrg-hash-to-curve-06.
-func isogenyMapG2(e *fp2, x, y *fe2) {
+func isogenyMapG2(e *Fp2, x, y *Fe2) {
 	if e == nil {
-		e = newFp2()
+		e = NewFp2()
 	}
-	xNum := new(fe2).set(isogenyConstantsG2[0][3])
-	xDen := new(fe2).set(x)
-	yNum := new(fe2).set(isogenyConstantsG2[2][3])
-	yDen := new(fe2).set(x)
+	xNum := new(Fe2).Set(isogenyConstantsG2[0][3])
+	xDen := new(Fe2).Set(x)
+	yNum := new(Fe2).Set(isogenyConstantsG2[2][3])
+	yDen := new(Fe2).Set(x)
 
-	e.mulAssign(xNum, x)
-	e.mulAssign(yNum, x)
+	e.MulAssign(xNum, x)
+	e.MulAssign(yNum, x)
 	fp2AddAssign(xNum, isogenyConstantsG2[0][2])
 	fp2AddAssign(yNum, isogenyConstantsG2[2][2])
 	fp2AddAssign(yDen, isogenyConstantsG2[3][2])
 
-	e.mulAssign(xNum, x)
-	e.mulAssign(yNum, x)
-	e.mulAssign(yDen, x)
+	e.MulAssign(xNum, x)
+	e.MulAssign(yNum, x)
+	e.MulAssign(yDen, x)
 	fp2AddAssign(xNum, isogenyConstantsG2[0][1])
 	fp2AddAssign(xDen, isogenyConstantsG2[1][1])
 	fp2AddAssign(yNum, isogenyConstantsG2[2][1])
 	fp2AddAssign(yDen, isogenyConstantsG2[3][1])
 
-	e.mulAssign(xNum, x)
-	e.mulAssign(xDen, x)
-	e.mulAssign(yNum, x)
-	e.mulAssign(yDen, x)
+	e.MulAssign(xNum, x)
+	e.MulAssign(xDen, x)
+	e.MulAssign(yNum, x)
+	e.MulAssign(yDen, x)
 	fp2AddAssign(xNum, isogenyConstantsG2[0][0])
 	fp2AddAssign(xDen, isogenyConstantsG2[1][0])
 	fp2AddAssign(yNum, isogenyConstantsG2[2][0])
 	fp2AddAssign(yDen, isogenyConstantsG2[3][0])
 
-	e.inverse(xDen, xDen)
-	e.inverse(yDen, yDen)
-	e.mul(x, xNum, xDen)
-	e.mulAssign(yNum, yDen)
-	e.mulAssign(y, yNum)
+	e.Inverse(xDen, xDen)
+	e.Inverse(yDen, yDen)
+	e.Mul(x, xNum, xDen)
+	e.MulAssign(yNum, yDen)
+	e.MulAssign(y, yNum)
 }
 
-var isogenyConstansG1 = [4][16]*fe{
+var isogenyConstansG1 = [4][16]*Fe{
 	{
 		{0x4d18b6f3af00131c, 0x19fa219793fee28c, 0x3f2885f1467f19ae, 0x23dcea34f2ffb304, 0xd15b58d2ffc00054, 0x0913be200a20bef4},
 		{0x898985385cdbbd8b, 0x3c79e43cc7d966aa, 0x1597e193f4cd233a, 0x8637ef1e4d6623ad, 0x11b22deed20d827b, 0x07097bc5998784ad},
@@ -139,7 +139,7 @@ var isogenyConstansG1 = [4][16]*fe{
 	},
 }
 
-var isogenyConstantsG2 = [4][4]*fe2{
+var isogenyConstantsG2 = [4][4]*Fe2{
 	{
 		{
 			{0x47f671c71ce05e62, 0x06dd57071206393e, 0x7c80cd2af3fd71a2, 0x048103ea9e6cd062, 0xc54516acc8d037f6, 0x13808f550920ea41},

@@ -15,29 +15,29 @@ func (g *G2) one() *PointG2 {
 
 func (g *G2) rand() *PointG2 {
 	p := &PointG2{}
-	z, _ := new(fe2).rand(rand.Reader)
-	z6, bz6 := new(fe2), new(fe2)
-	g.f.square(z6, z)
-	g.f.square(z6, z6)
-	g.f.mul(z6, z6, z)
-	g.f.mul(z6, z6, z)
-	g.f.mul(bz6, z6, b2)
+	z, _ := new(Fe2).Rand(rand.Reader)
+	z6, bz6 := new(Fe2), new(Fe2)
+	g.f.Square(z6, z)
+	g.f.Square(z6, z6)
+	g.f.Mul(z6, z6, z)
+	g.f.Mul(z6, z6, z)
+	g.f.Mul(bz6, z6, b2)
 	for {
-		x, _ := new(fe2).rand(rand.Reader)
-		y := new(fe2)
-		g.f.square(y, x)
-		g.f.mul(y, y, x)
+		x, _ := new(Fe2).Rand(rand.Reader)
+		y := new(Fe2)
+		g.f.Square(y, x)
+		g.f.Mul(y, y, x)
 		fp2Add(y, y, bz6)
-		if g.f.sqrt(y, y) {
+		if g.f.Sqrt(y, y) {
 			p.Set(&PointG2{*x, *y, *z})
 			break
 		}
 	}
 	if !g.IsOnCurve(p) {
-		panic("rand point must be on curve")
+		panic("Rand point must be on curve")
 	}
 	if g.InCorrectSubgroup(p) {
-		panic("rand point must be out of correct subgroup")
+		panic("Rand point must be out of correct subgroup")
 	}
 	return p
 }
@@ -122,9 +122,9 @@ func TestG2IsOnCurve(t *testing.T) {
 	g := NewG2()
 	zero := g.Zero()
 	if !g.IsOnCurve(zero) {
-		t.Fatal("zero must be on curve")
+		t.Fatal("Zero must be on curve")
 	}
-	one := new(fe2).one()
+	one := new(Fe2).One()
 	p := &PointG2{*one, *one, *one}
 	if g.IsOnCurve(p) {
 		t.Fatal("(1, 1) is not on curve")
@@ -241,7 +241,7 @@ func TestG2MixedAdd(t *testing.T) {
 		g.AddMixed(r0, a, aAffine)
 		g.Double(r1, a)
 		if !g.Equal(r0, r1) {
-			t.Fatal("mixed addition must double where points are equal")
+			t.Fatal("mixed addition must double where points are Equal")
 		}
 	}
 }
@@ -265,13 +265,13 @@ func TestG2MultiplicationCross(t *testing.T) {
 			t.Fatal("cross multiplication failed (glv, fr)", i)
 		}
 		if !g.Equal(res0, res2) {
-			t.Fatal("cross multiplication failed (glv, big)", i)
+			t.Fatal("cross multiplication failed (glv, Big)", i)
 		}
 		if !g.Equal(res0, res3) {
 			t.Fatal("cross multiplication failed (wnaf, fr)", i)
 		}
 		if !g.Equal(res0, res4) {
-			t.Fatal("cross multiplication failed (wnaf, big)", i)
+			t.Fatal("cross multiplication failed (wnaf, Big)", i)
 		}
 	}
 }
@@ -448,7 +448,7 @@ func TestG2ClearCofactor(t *testing.T) {
 	for i := 0; i < fuz; i++ {
 		p0 := g.rand()
 		if g.InCorrectSubgroup(p0) {
-			t.Fatal("rand point should be out of correct subgroup")
+			t.Fatal("Rand point should be out of correct subgroup")
 		}
 		g.ClearCofactor(p0)
 		if !g.InCorrectSubgroup(p0) {

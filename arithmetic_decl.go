@@ -1,3 +1,4 @@
+//go:build amd64 && !generic
 // +build amd64,!generic
 
 package bls12381
@@ -13,184 +14,184 @@ func init() {
 		fromWide = montRedNoADX
 		mulFR = mulNoADXFR
 		wmulFR = wmulNoADXFR
-		wfp2Mul = wfp2MulGeneric
-		wfp2Square = wfp2SquareGeneric
+		wfp2Mul = Wfp2MulGeneric
+		wfp2Square = Wfp2SquareGeneric
 	}
 }
 
-var mul func(c, a, b *fe) = mulADX
-var wmul func(c *wfe, a, b *fe) = wmulADX
-var fromWide func(c *fe, w *wfe) = montRedADX
-var wfp2Mul func(c *wfe2, a, b *fe2) = wfp2MulADX
-var wfp2Square func(c *wfe2, b *fe2) = wfp2SquareADX
+var mul func(c, a, b *Fe) = mulADX
+var wmul func(c *Wfe, a, b *Fe) = wmulADX
+var fromWide func(c *Fe, w *Wfe) = montRedADX
+var wfp2Mul func(c *Wfe2, a, b *Fe2) = wfp2MulADX
+var wfp2Square func(c *Wfe2, b *Fe2) = wfp2SquareADX
 
-func square(c, a *fe) {
+func square(c, a *Fe) {
 	mul(c, a, a)
 }
 
-func neg(c, a *fe) {
-	if a.isZero() {
-		c.set(a)
+func neg(c, a *Fe) {
+	if a.IsZero() {
+		c.Set(a)
 	} else {
 		_neg(c, a)
 	}
 }
 
 //go:noescape
-func add(c, a, b *fe)
+func add(c, a, b *Fe)
 
 //go:noescape
-func addAssign(a, b *fe)
+func addAssign(a, b *Fe)
 
 //go:noescape
-func ladd(c, a, b *fe)
+func ladd(c, a, b *Fe)
 
 //go:noescape
-func laddAssign(a, b *fe)
+func laddAssign(a, b *Fe)
 
 //go:noescape
-func double(c, a *fe)
+func double(c, a *Fe)
 
 //go:noescape
-func doubleAssign(a *fe)
+func doubleAssign(a *Fe)
 
 //go:noescape
-func ldouble(c, a *fe)
+func ldouble(c, a *Fe)
 
 //go:noescape
-func ldoubleAssign(a *fe)
+func ldoubleAssign(a *Fe)
 
 //go:noescape
-func sub(c, a, b *fe)
+func sub(c, a, b *Fe)
 
 //go:noescape
-func subAssign(a, b *fe)
+func subAssign(a, b *Fe)
 
 //go:noescape
-func lsubAssign(a, b *fe)
+func lsubAssign(a, b *Fe)
 
 //go:noescape
-func _neg(c, a *fe)
+func _neg(c, a *Fe)
 
 //go:noescape
-func mulNoADX(c, a, b *fe)
+func mulNoADX(c, a, b *Fe)
 
 //go:noescape
-func mulADX(c, a, b *fe)
+func mulADX(c, a, b *Fe)
 
 //go:noescape
-func wmulNoADX(c *wfe, a, b *fe)
+func wmulNoADX(c *Wfe, a, b *Fe)
 
 //go:noescape
-func wmulADX(c *wfe, a, b *fe)
+func wmulADX(c *Wfe, a, b *Fe)
 
 //go:noescape
-func montRedNoADX(a *fe, w *wfe)
+func montRedNoADX(a *Fe, w *Wfe)
 
 //go:noescape
-func montRedADX(a *fe, w *wfe)
+func montRedADX(a *Fe, w *Wfe)
 
 //go:noescape
-func lwadd(c, a, b *wfe)
+func lwadd(c, a, b *Wfe)
 
 //go:noescape
-func lwaddAssign(a, b *wfe)
+func lwaddAssign(a, b *Wfe)
 
 //go:noescape
-func wadd(c, a, b *wfe)
+func wadd(c, a, b *Wfe)
 
 //go:noescape
-func lwdouble(c, a *wfe)
+func lwdouble(c, a *Wfe)
 
 //go:noescape
-func wdouble(c, a *wfe)
+func wdouble(c, a *Wfe)
 
 //go:noescape
-func lwsub(c, a, b *wfe)
+func lwsub(c, a, b *Wfe)
 
 //go:noescape
-func lwsubAssign(a, b *wfe)
+func lwsubAssign(a, b *Wfe)
 
 //go:noescape
-func wsub(c, a, b *wfe)
+func wsub(c, a, b *Wfe)
 
 //go:noescape
-func fp2Add(c, a, b *fe2)
+func fp2Add(c, a, b *Fe2)
 
 //go:noescape
-func fp2AddAssign(a, b *fe2)
+func fp2AddAssign(a, b *Fe2)
 
 //go:noescape
-func fp2Ladd(c, a, b *fe2)
+func fp2Ladd(c, a, b *Fe2)
 
 //go:noescape
-func fp2LaddAssign(a, b *fe2)
+func fp2LaddAssign(a, b *Fe2)
 
 //go:noescape
-func fp2DoubleAssign(a *fe2)
+func fp2DoubleAssign(a *Fe2)
 
 //go:noescape
-func fp2Double(c, a *fe2)
+func fp2Double(c, a *Fe2)
 
 //go:noescape
-func fp2Sub(c, a, b *fe2)
+func fp2Sub(c, a, b *Fe2)
 
 //go:noescape
-func fp2SubAssign(a, b *fe2)
+func fp2SubAssign(a, b *Fe2)
 
 //go:noescape
-func mulByNonResidue(c, a *fe2)
+func mulByNonResidue(c, a *Fe2)
 
 //go:noescape
-func mulByNonResidueAssign(a *fe2)
+func mulByNonResidueAssign(a *Fe2)
 
 //go:noescape
-func wfp2Add(c, a, b *wfe2)
+func wfp2Add(c, a, b *Wfe2)
 
 //go:noescape
-func wfp2AddAssign(a, b *wfe2)
+func wfp2AddAssign(a, b *Wfe2)
 
 //go:noescape
-func wfp2Ladd(c, a, b *wfe2)
+func wfp2Ladd(c, a, b *Wfe2)
 
 //go:noescape
-func wfp2LaddAssign(a, b *wfe2)
+func wfp2LaddAssign(a, b *Wfe2)
 
 //go:noescape
-func wfp2AddMixed(c, a, b *wfe2)
+func wfp2AddMixed(c, a, b *Wfe2)
 
 //go:noescape
-func wfp2AddMixedAssign(a, b *wfe2)
+func wfp2AddMixedAssign(a, b *Wfe2)
 
 //go:noescape
-func wfp2Sub(c, a, b *wfe2)
+func wfp2Sub(c, a, b *Wfe2)
 
 //go:noescape
-func wfp2SubAssign(a, b *wfe2)
+func wfp2SubAssign(a, b *Wfe2)
 
 //go:noescape
-func wfp2SubMixed(c, a, b *wfe2)
+func wfp2SubMixed(c, a, b *Wfe2)
 
 //go:noescape
-func wfp2SubMixedAssign(a, b *wfe2)
+func wfp2SubMixedAssign(a, b *Wfe2)
 
 //go:noescape
-func wfp2Double(c, a *wfe2)
+func wfp2Double(c, a *Wfe2)
 
 //go:noescape
-func wfp2DoubleAssign(a *wfe2)
+func wfp2DoubleAssign(a *Wfe2)
 
 //go:noescape
-func wfp2MulByNonResidue(c, a *wfe2)
+func wfp2MulByNonResidue(c, a *Wfe2)
 
 //go:noescape
-func wfp2MulByNonResidueAssign(a *wfe2)
+func wfp2MulByNonResidueAssign(a *Wfe2)
 
 //go:noescape
-func wfp2SquareADX(c *wfe2, a *fe2)
+func wfp2SquareADX(c *Wfe2, a *Fe2)
 
 //go:noescape
-func wfp2MulADX(c *wfe2, a, b *fe2)
+func wfp2MulADX(c *Wfe2, a, b *Fe2)
 
 var mulFR func(c, a, b *Fr) = mulADXFR
 var wmulFR func(c *wideFr, a, b *Fr) = wmulADXFR

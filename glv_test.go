@@ -16,15 +16,15 @@ func TestGLVConstruction(t *testing.T) {
 		if !t0.Equal(t1) {
 			t.Fatal("lambda1^2 + lambda1 + 1 = 0")
 		}
-		c0 := new(fe)
+		c0 := new(Fe)
 		square(c0, glvPhi1)
 		mul(c0, c0, glvPhi1)
-		if !c0.isOne() {
+		if !c0.IsOne() {
 			t.Fatal("phi1^3 = 1")
 		}
 		square(c0, glvPhi2)
 		mul(c0, c0, glvPhi2)
-		if !c0.isOne() {
+		if !c0.IsOne() {
 			t.Fatal("phi2^3 = 1")
 		}
 	})
@@ -100,17 +100,17 @@ func TestGLVConstruction(t *testing.T) {
 				vBig = new(glvVectorBig).new(mBig)
 
 				if new(big.Int).Abs(vBig.k1).Cmp(r128Big) >= 0 {
-					t.Fatal("bad scalar component, big k1")
+					t.Fatal("bad scalar component, Big k1")
 				}
 				if new(big.Int).Abs(vBig.k2).Cmp(r128Big) >= 0 {
-					t.Fatal("bad scalar component, big k2")
+					t.Fatal("bad scalar component, Big k2")
 				}
 
 				k := new(big.Int)
 				k.Mul(glvLambdaBig, vBig.k2)
 				k.Sub(vBig.k1, k).Mod(k, qBig)
 				if k.Cmp(mBig) != 0 {
-					t.Fatal("scalar decomposing with big.Int failed", i)
+					t.Fatal("scalar decomposing with Big.Int failed", i)
 				}
 			}
 

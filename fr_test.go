@@ -31,18 +31,18 @@ func TestFrSerialization(t *testing.T) {
 
 	e := new(Fr).FromBytes(in)
 	if !e.IsZero() {
-		t.Fatal("serialization failed, from bytes zero")
+		t.Fatal("serialization failed, from Bytes Zero")
 	}
 	if !bytes.Equal(in, e.ToBytes()) {
-		t.Fatal("serialization failed, to bytes zero")
+		t.Fatal("serialization failed, to Bytes Zero")
 	}
 
 	e = new(Fr).RedFromBytes(in)
 	if !e.IsZero() {
-		t.Fatal("serialization failed, from bytes zero, reduced")
+		t.Fatal("serialization failed, from Bytes Zero, reduced")
 	}
 	if !bytes.Equal(in, e.RedToBytes()) {
-		t.Fatal("serialization failed, to bytes zero, reduced")
+		t.Fatal("serialization failed, to Bytes Zero, reduced")
 	}
 
 	a, err := new(Fr).Rand(rand.Reader)
@@ -52,17 +52,17 @@ func TestFrSerialization(t *testing.T) {
 	b := new(Fr)
 	b.fromBytes(a.bytes())
 	if !a.Equal(b) {
-		t.Fatal("serialization failed, set bytes")
+		t.Fatal("serialization failed, Set Bytes")
 	}
 
 	b = new(Fr).FromBytes(a.ToBytes())
 	if !a.Equal(b) {
-		t.Fatal("serialization failed, from/to bytes")
+		t.Fatal("serialization failed, from/to Bytes")
 	}
 
 	b = new(Fr).RedFromBytes(a.RedToBytes())
 	if !a.Equal(b) {
-		t.Fatal("serialization failed, from/to bytes, reduced")
+		t.Fatal("serialization failed, from/to Bytes, reduced")
 	}
 }
 
@@ -102,7 +102,7 @@ func TestFrBitShift(t *testing.T) {
 	b.mul2()
 	b.div2()
 	if !b.Equal(a) {
-		t.Fatal("mul2 div2 failed")
+		t.Fatal("Mul2 Div2 failed")
 	}
 	a, _ = new(Fr).Rand(rand.Reader)
 	a[0] = a[0] & 0xfffffffffffffffe
@@ -110,7 +110,7 @@ func TestFrBitShift(t *testing.T) {
 	b.div2()
 	b.mul2()
 	if !b.Equal(a) {
-		t.Fatal("mul2 div2 failed")
+		t.Fatal("Mul2 Div2 failed")
 	}
 }
 
@@ -126,25 +126,25 @@ func TestFrAdditionCrossAgainstBigInt(t *testing.T) {
 		out1 := c.ToBytes()
 		out2 := padBytes(bigC.Add(bigA, bigB).Mod(bigC, qBig).Bytes(), frByteSize)
 		if !bytes.Equal(out1, out2) {
-			t.Fatal("cross test against big.Int is failed, add")
+			t.Fatal("cross test against Big.Int is failed, add")
 		}
 		c.Double(a)
 		out1 = c.ToBytes()
 		out2 = padBytes(bigC.Add(bigA, bigA).Mod(bigC, qBig).Bytes(), frByteSize)
 		if !bytes.Equal(out1, out2) {
-			t.Fatal("cross test against big.Int is failed, double")
+			t.Fatal("cross test against Big.Int is failed, double")
 		}
 		c.Sub(a, b)
 		out1 = c.ToBytes()
 		out2 = padBytes(bigC.Sub(bigA, bigB).Mod(bigC, qBig).Bytes(), frByteSize)
 		if !bytes.Equal(out1, out2) {
-			t.Fatal("cross test against big.Int is failed, sub")
+			t.Fatal("cross test against Big.Int is failed, sub")
 		}
 		c.Neg(a)
 		out1 = c.ToBytes()
 		out2 = padBytes(bigC.Neg(bigA).Mod(bigC, qBig).Bytes(), frByteSize)
 		if !bytes.Equal(out1, out2) {
-			t.Fatal("cross test against big.Int is failed, neg")
+			t.Fatal("cross test against Big.Int is failed, neg")
 		}
 	}
 }
@@ -222,7 +222,7 @@ func TestFrMultiplicationCrossAgainstBigInt(t *testing.T) {
 		out1 := c.ToBytes()
 		out2 := padBytes(bigC.Mul(bigA, bigB).Mod(bigC, qBig).Bytes(), frByteSize)
 		if !bytes.Equal(out1, out2) {
-			t.Fatal("cross test against big.Int is failed")
+			t.Fatal("cross test against Big.Int is failed")
 		}
 	}
 }
@@ -239,7 +239,7 @@ func TestFrMultiplicationCrossAgainstBigIntReduced(t *testing.T) {
 		out1 := c.RedToBytes()
 		out2 := padBytes(bigC.Mul(bigA, bigB).Mod(bigC, qBig).Bytes(), frByteSize)
 		if !bytes.Equal(out1, out2) {
-			t.Fatal("cross test against big.Int is failed, reduced")
+			t.Fatal("cross test against Big.Int is failed, reduced")
 		}
 	}
 }

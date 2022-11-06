@@ -7,58 +7,58 @@ import (
 )
 
 // PointG2 is type for point in G2 and used for both affine and Jacobian representation.
-// A point is accounted as in affine form if z is equal to one.
-type PointG2 [3]fe2
+// A point is accounted as in affine form if z is Equal to One.
+type PointG2 [3]Fe2
 
 var wnafMulWindowG2 uint = 6
 
-// Set copies valeus of one point to another.
+// Set copies valeus of One point to another.
 func (p *PointG2) Set(p2 *PointG2) *PointG2 {
-	p[0].set(&p2[0])
-	p[1].set(&p2[1])
-	p[2].set(&p2[2])
+	p[0].Set(&p2[0])
+	p[1].Set(&p2[1])
+	p[2].Set(&p2[2])
 	return p
 }
 
 func (p *PointG2) Zero() *PointG2 {
-	p[0].zero()
-	p[1].one()
-	p[2].zero()
+	p[0].Zero()
+	p[1].One()
+	p[2].Zero()
 	return p
 }
 
 // IsAffine checks a G1 point whether it is in affine form.
 func (p *PointG2) IsAffine() bool {
-	return p[2].isOne()
+	return p[2].IsOne()
 }
 
 type tempG2 struct {
-	t [9]*fe2
+	t [9]*Fe2
 }
 
 // G2 is struct for G2 group.
 type G2 struct {
-	f *fp2
+	f *Fp2
 	tempG2
 }
 
-// NewG2 constructs a new G2 instance.
+// NewG2 constructs a New G2 instance.
 func NewG2() *G2 {
 	return newG2(nil)
 }
 
-func newG2(f *fp2) *G2 {
+func newG2(f *Fp2) *G2 {
 	if f == nil {
-		f = newFp2()
+		f = NewFp2()
 	}
 	t := newTempG2()
 	return &G2{f, t}
 }
 
 func newTempG2() tempG2 {
-	t := [9]*fe2{}
+	t := [9]*Fe2{}
 	for i := 0; i < 9; i++ {
-		t[i] = &fe2{}
+		t[i] = &Fe2{}
 	}
 	return tempG2{t}
 }
@@ -68,40 +68,40 @@ func (g *G2) Q() *big.Int {
 	return new(big.Int).Set(qBig)
 }
 
-// FromUncompressed expects byte slice at least 192 bytes and given bytes returns a new point in G2.
+// FromUncompressed expects byte slice at least 192 Bytes and given Bytes returns a New point in G2.
 // Serialization rules are in line with zcash library. See below for details.
 // https://github.com/zcash/librustzcash/blob/master/pairing/src/bls12_381/README.md#serialization
 // https://docs.rs/bls12_381/0.1.1/bls12_381/notes/serialization/index.html
 func (g *G2) FromUncompressed(uncompressed []byte) (*PointG2, error) {
 	if len(uncompressed) != 4*fpByteSize {
-		return nil, errors.New("input string length must be equal to 192 bytes")
+		return nil, errors.New("input String length must be Equal to 192 Bytes")
 	}
 	var in [4 * fpByteSize]byte
 	copy(in[:], uncompressed[:4*fpByteSize])
 	if in[0]&(1<<7) != 0 {
-		return nil, errors.New("compression flag must be zero")
+		return nil, errors.New("compression flag must be Zero")
 	}
 	if in[0]&(1<<5) != 0 {
-		return nil, errors.New("sort flag must be zero")
+		return nil, errors.New("sort flag must be Zero")
 	}
 	if in[0]&(1<<6) != 0 {
 		for i, v := range in {
 			if (i == 0 && v != 0x40) || (i != 0 && v != 0x00) {
-				return nil, errors.New("input string must be zero when infinity flag is set")
+				return nil, errors.New("input String must be Zero when infinity flag is Set")
 			}
 		}
 		return g.Zero(), nil
 	}
 	in[0] &= 0x1f
-	x, err := g.f.fromBytes(in[:2*fpByteSize])
+	x, err := g.f.FromBytes(in[:2*fpByteSize])
 	if err != nil {
 		return nil, err
 	}
-	y, err := g.f.fromBytes(in[2*fpByteSize:])
+	y, err := g.f.FromBytes(in[2*fpByteSize:])
 	if err != nil {
 		return nil, err
 	}
-	z := new(fe2).one()
+	z := new(Fe2).One()
 	p := &PointG2{*x, *y, *z}
 	if !g.IsOnCurve(p) {
 		return nil, errors.New("point is not on curve")
@@ -112,7 +112,7 @@ func (g *G2) FromUncompressed(uncompressed []byte) (*PointG2, error) {
 	return p, nil
 }
 
-// ToUncompressed given a G2 point returns bytes in uncompressed (x, y) form of the point.
+// ToUncompressed given a G2 point returns Bytes in uncompressed (x, y) form of the point.
 // Serialization rules are in line with zcash library. See below for details.
 // https://github.com/zcash/librustzcash/blob/master/pairing/src/bls12_381/README.md#serialization
 // https://docs.rs/bls12_381/0.1.1/bls12_381/notes/serialization/index.html
@@ -123,51 +123,51 @@ func (g *G2) ToUncompressed(p *PointG2) []byte {
 		out[0] |= 1 << 6
 		return out
 	}
-	copy(out[:2*fpByteSize], g.f.toBytes(&p[0]))
-	copy(out[2*fpByteSize:], g.f.toBytes(&p[1]))
+	copy(out[:2*fpByteSize], g.f.ToBytes(&p[0]))
+	copy(out[2*fpByteSize:], g.f.ToBytes(&p[1]))
 	return out
 }
 
-// FromCompressed expects byte slice at least 96 bytes and given bytes returns a new point in G2.
+// FromCompressed expects byte slice at least 96 Bytes and given Bytes returns a New point in G2.
 // Serialization rules are in line with zcash library. See below for details.
 // https://github.com/zcash/librustzcash/blob/master/pairing/src/bls12_381/README.md#serialization
 // https://docs.rs/bls12_381/0.1.1/bls12_381/notes/serialization/index.html
 func (g *G2) FromCompressed(compressed []byte) (*PointG2, error) {
 	if len(compressed) != 2*fpByteSize {
-		return nil, errors.New("input string length must be equal to 96 bytes")
+		return nil, errors.New("input String length must be Equal to 96 Bytes")
 	}
 	var in [2 * fpByteSize]byte
 	copy(in[:], compressed[:])
 	if in[0]&(1<<7) == 0 {
-		return nil, errors.New("compression flag must be set")
+		return nil, errors.New("compression flag must be Set")
 	}
 	if in[0]&(1<<6) != 0 {
 		// in[0] == (1 << 6) + (1 << 7)
 		for i, v := range in {
 			if (i == 0 && v != 0xc0) || (i != 0 && v != 0x00) {
-				return nil, errors.New("input string must be zero when infinity flag is set")
+				return nil, errors.New("input String must be Zero when infinity flag is Set")
 			}
 		}
 		return g.Zero(), nil
 	}
 	a := in[0]&(1<<5) != 0
 	in[0] &= 0x1f
-	x, err := g.f.fromBytes(in[:])
+	x, err := g.f.FromBytes(in[:])
 	if err != nil {
 		return nil, err
 	}
 	// solve curve equation
-	y := &fe2{}
-	g.f.square(y, x)
-	g.f.mul(y, y, x)
+	y := &Fe2{}
+	g.f.Square(y, x)
+	g.f.Mul(y, y, x)
 	fp2Add(y, y, b2)
-	if ok := g.f.sqrt(y, y); !ok {
+	if ok := g.f.Sqrt(y, y); !ok {
 		return nil, errors.New("point is not on curve")
 	}
-	if y.signBE() == a {
-		fp2Neg(y, y)
+	if y.SignBE() == a {
+		Fp2Neg(y, y)
 	}
-	z := new(fe2).one()
+	z := new(Fe2).One()
 	p := &PointG2{*x, *y, *z}
 	if !g.InCorrectSubgroup(p) {
 		return nil, errors.New("point is not on correct subgroup")
@@ -175,7 +175,7 @@ func (g *G2) FromCompressed(compressed []byte) (*PointG2, error) {
 	return p, nil
 }
 
-// ToCompressed given a G2 point returns bytes in compressed form of the point.
+// ToCompressed given a G2 point returns Bytes in compressed form of the point.
 // Serialization rules are in line with zcash library. See below for details.
 // https://github.com/zcash/librustzcash/blob/master/pairing/src/bls12_381/README.md#serialization
 // https://docs.rs/bls12_381/0.1.1/bls12_381/notes/serialization/index.html
@@ -185,8 +185,8 @@ func (g *G2) ToCompressed(p *PointG2) []byte {
 	if g.IsZero(p) {
 		out[0] |= 1 << 6
 	} else {
-		copy(out[:], g.f.toBytes(&p[0]))
-		if !p[1].signBE() {
+		copy(out[:], g.f.ToBytes(&p[0]))
+		if !p[1].SignBE() {
 			out[0] |= 1 << 5
 		}
 	}
@@ -195,38 +195,38 @@ func (g *G2) ToCompressed(p *PointG2) []byte {
 }
 
 func (g *G2) fromBytesUnchecked(in []byte) (*PointG2, error) {
-	p0, err := g.f.fromBytes(in[:2*fpByteSize])
+	p0, err := g.f.FromBytes(in[:2*fpByteSize])
 	if err != nil {
 		return nil, err
 	}
-	p1, err := g.f.fromBytes(in[2*fpByteSize:])
+	p1, err := g.f.FromBytes(in[2*fpByteSize:])
 	if err != nil {
 		return nil, err
 	}
-	p2 := new(fe2).one()
+	p2 := new(Fe2).One()
 	return &PointG2{*p0, *p1, *p2}, nil
 }
 
-// FromBytes constructs a new point given uncompressed byte input.
-// Input string expected to be 192 bytes and concatenation of x and y values
+// FromBytes constructs a New point given uncompressed byte input.
+// Input String expected to be 192 Bytes and concatenation of x and y values
 // Point (0, 0) is considered as infinity.
 func (g *G2) FromBytes(in []byte) (*PointG2, error) {
 	if len(in) != 4*fpByteSize {
-		return nil, errors.New("input string length must be equal to 192 bytes")
+		return nil, errors.New("input String length must be Equal to 192 Bytes")
 	}
-	p0, err := g.f.fromBytes(in[:2*fpByteSize])
+	p0, err := g.f.FromBytes(in[:2*fpByteSize])
 	if err != nil {
 		return nil, err
 	}
-	p1, err := g.f.fromBytes(in[2*fpByteSize:])
+	p1, err := g.f.FromBytes(in[2*fpByteSize:])
 	if err != nil {
 		return nil, err
 	}
 	// check if given input points to infinity
-	if p0.isZero() && p1.isZero() {
+	if p0.IsZero() && p1.IsZero() {
 		return g.Zero(), nil
 	}
-	p2 := new(fe2).one()
+	p2 := new(Fe2).One()
 	p := &PointG2{*p0, *p1, *p2}
 	if !g.IsOnCurve(p) {
 		return nil, errors.New("point is not on curve")
@@ -234,7 +234,7 @@ func (g *G2) FromBytes(in []byte) (*PointG2, error) {
 	return p, nil
 }
 
-// ToBytes serializes a point into bytes in uncompressed form,
+// ToBytes serializes a point into Bytes in uncompressed form,
 // returns (0, 0) if point is infinity.
 func (g *G2) ToBytes(p *PointG2) []byte {
 	out := make([]byte, 4*fpByteSize)
@@ -242,33 +242,33 @@ func (g *G2) ToBytes(p *PointG2) []byte {
 		return out
 	}
 	g.Affine(p)
-	copy(out[:2*fpByteSize], g.f.toBytes(&p[0]))
-	copy(out[2*fpByteSize:], g.f.toBytes(&p[1]))
+	copy(out[:2*fpByteSize], g.f.ToBytes(&p[0]))
+	copy(out[2*fpByteSize:], g.f.ToBytes(&p[1]))
 	return out
 }
 
-// New creates a new G2 Point which is equal to zero in other words point at infinity.
+// New creates a New G2 Point which is Equal to Zero in other words point at infinity.
 func (g *G2) New() *PointG2 {
 	return new(PointG2).Zero()
 }
 
-// Zero returns a new G2 Point which is equal to point at infinity.
+// Zero returns a New G2 Point which is Equal to point at infinity.
 func (g *G2) Zero() *PointG2 {
 	return new(PointG2).Zero()
 }
 
-// One returns a new G2 Point which is equal to generator point.
+// One returns a New G2 Point which is Equal to generator point.
 func (g *G2) One() *PointG2 {
 	p := &PointG2{}
 	return p.Set(&g2One)
 }
 
-// IsZero returns true if given point is equal to zero.
+// IsZero returns true if given point is Equal to Zero.
 func (g *G2) IsZero(p *PointG2) bool {
-	return p[2].isZero()
+	return p[2].IsZero()
 }
 
-// Equal checks if given two G2 point is equal in their affine form.
+// Equal checks if given two G2 point is Equal in their affine form.
 func (g *G2) Equal(p1, p2 *PointG2) bool {
 	if g.IsZero(p1) {
 		return g.IsZero(p2)
@@ -277,15 +277,15 @@ func (g *G2) Equal(p1, p2 *PointG2) bool {
 		return g.IsZero(p1)
 	}
 	t := g.t
-	g.f.square(t[0], &p1[2])
-	g.f.square(t[1], &p2[2])
-	g.f.mul(t[2], t[0], &p2[0])
-	g.f.mul(t[3], t[1], &p1[0])
-	g.f.mulAssign(t[0], &p1[2])
-	g.f.mulAssign(t[1], &p2[2])
-	g.f.mulAssign(t[1], &p1[1])
-	g.f.mulAssign(t[0], &p2[1])
-	return t[0].equal(t[1]) && t[2].equal(t[3])
+	g.f.Square(t[0], &p1[2])
+	g.f.Square(t[1], &p2[2])
+	g.f.Mul(t[2], t[0], &p2[0])
+	g.f.Mul(t[3], t[1], &p1[0])
+	g.f.MulAssign(t[0], &p1[2])
+	g.f.MulAssign(t[1], &p2[2])
+	g.f.MulAssign(t[1], &p1[1])
+	g.f.MulAssign(t[0], &p2[1])
+	return t[0].Equal(t[1]) && t[2].Equal(t[3])
 }
 
 // IsOnCurve checks a G2 point is on curve.
@@ -294,24 +294,24 @@ func (g *G2) IsOnCurve(p *PointG2) bool {
 		return true
 	}
 	t := g.t
-	g.f.square(t[0], &p[1])    // y^2
-	g.f.square(t[1], &p[0])    // x^2
-	g.f.mul(t[1], t[1], &p[0]) // x^3
+	g.f.Square(t[0], &p[1])    // y^2
+	g.f.Square(t[1], &p[0])    // x^2
+	g.f.Mul(t[1], t[1], &p[0]) // x^3
 	if p.IsAffine() {
 		fp2Add(t[1], t[1], b2)  // x^2 + b
-		return t[0].equal(t[1]) // y^2 ?= x^3 + b
+		return t[0].Equal(t[1]) // y^2 ?= x^3 + b
 	}
-	g.f.square(t[2], &p[2])   // z^2
-	g.f.square(t[3], t[2])    // z^4
-	g.f.mulAssign(t[2], t[3]) // z^6
-	g.f.mulAssign(t[2], b2)   // b*z^6
+	g.f.Square(t[2], &p[2])   // z^2
+	g.f.Square(t[3], t[2])    // z^4
+	g.f.MulAssign(t[2], t[3]) // z^6
+	g.f.MulAssign(t[2], b2)   // b*z^6
 	fp2AddAssign(t[1], t[2])  // x^3 + b * z^6
-	return t[0].equal(t[1])   // y^2 ?= x^3 + b * z^6
+	return t[0].Equal(t[1])   // y^2 ?= x^3 + b * z^6
 }
 
 // IsAffine checks a G2 point whether it is in affine form.
 func (g *G2) IsAffine(p *PointG2) bool {
-	return p[2].isOne()
+	return p[2].IsOne()
 }
 
 // Affine calculates affine form of given G2 point.
@@ -325,12 +325,12 @@ func (g *G2) affine(r, p *PointG2) *PointG2 {
 	}
 	if !g.IsAffine(p) {
 		t := g.t
-		g.f.inverse(t[0], &p[2])   // z^-1
-		g.f.square(t[1], t[0])     // z^-2
-		g.f.mulAssign(&r[0], t[1]) // x = x * z^-2
-		g.f.mulAssign(t[0], t[1])  // z^-3
-		g.f.mulAssign(&r[1], t[0]) // y = y * z^-3
-		r[2].one()                 // z = 1
+		g.f.Inverse(t[0], &p[2])   // z^-1
+		g.f.Square(t[1], t[0])     // z^-2
+		g.f.MulAssign(&r[0], t[1]) // x = x * z^-2
+		g.f.MulAssign(t[0], t[1])  // z^-3
+		g.f.MulAssign(&r[1], t[0]) // y = y * z^-3
+		r[2].One()                 // z = 1
 	} else {
 		r.Set(p)
 	}
@@ -339,19 +339,19 @@ func (g *G2) affine(r, p *PointG2) *PointG2 {
 
 // AffineBatch given multiple of points returns affine representations
 func (g *G2) AffineBatch(p []*PointG2) {
-	inverses := make([]fe2, len(p))
+	inverses := make([]Fe2, len(p))
 	for i := 0; i < len(p); i++ {
-		inverses[i].set(&p[i][2])
+		inverses[i].Set(&p[i][2])
 	}
-	g.f.inverseBatch(inverses)
+	g.f.InverseBatch(inverses)
 	t := g.t
 	for i := 0; i < len(p); i++ {
 		if !g.IsAffine(p[i]) && !g.IsZero(p[i]) {
-			g.f.square(t[1], &inverses[i])
-			g.f.mulAssign(&p[i][0], t[1])
-			g.f.mul(t[0], &inverses[i], t[1])
-			g.f.mulAssign(&p[i][1], t[0])
-			p[i][2].one()
+			g.f.Square(t[1], &inverses[i])
+			g.f.MulAssign(&p[i][0], t[1])
+			g.f.Mul(t[0], &inverses[i], t[1])
+			g.f.MulAssign(&p[i][1], t[0])
+			p[i][2].One()
 		}
 	}
 }
@@ -369,16 +369,16 @@ func (g *G2) Add(r, p1, p2 *PointG2) *PointG2 {
 		return g.AddMixed(r, p1, p2)
 	}
 	t := g.t
-	g.f.square(t[7], &p1[2])    // z1z1
-	g.f.mul(t[1], &p2[0], t[7]) // u2 = x2 * z1z1
-	g.f.mul(t[2], &p1[2], t[7]) // z1z1 * z1
-	g.f.mul(t[0], &p2[1], t[2]) // s2 = y2 * z1z1 * z1
-	g.f.square(t[8], &p2[2])    // z2z2
-	g.f.mul(t[3], &p1[0], t[8]) // u1 = x1 * z2z2
-	g.f.mul(t[4], &p2[2], t[8]) // z2z2 * z2
-	g.f.mul(t[2], &p1[1], t[4]) // s1 = y1 * z2z2 * z2
-	if t[1].equal(t[3]) {
-		if t[0].equal(t[2]) {
+	g.f.Square(t[7], &p1[2])    // z1z1
+	g.f.Mul(t[1], &p2[0], t[7]) // u2 = x2 * z1z1
+	g.f.Mul(t[2], &p1[2], t[7]) // z1z1 * z1
+	g.f.Mul(t[0], &p2[1], t[2]) // s2 = y2 * z1z1 * z1
+	g.f.Square(t[8], &p2[2])    // z2z2
+	g.f.Mul(t[3], &p1[0], t[8]) // u1 = x1 * z2z2
+	g.f.Mul(t[4], &p2[2], t[8]) // z2z2 * z2
+	g.f.Mul(t[2], &p1[1], t[4]) // s1 = y1 * z2z2 * z2
+	if t[1].Equal(t[3]) {
+		if t[0].Equal(t[2]) {
 			return g.Double(r, p1)
 		} else {
 			return r.Zero()
@@ -386,25 +386,25 @@ func (g *G2) Add(r, p1, p2 *PointG2) *PointG2 {
 	}
 	fp2SubAssign(t[1], t[3])     // h = u2 - u1
 	fp2Double(t[4], t[1])        // 2h
-	g.f.squareAssign(t[4])       // i = 2h^2
-	g.f.mul(t[5], t[1], t[4])    // j = h*i
+	g.f.SquareAssign(t[4])       // i = 2h^2
+	g.f.Mul(t[5], t[1], t[4])    // j = h*i
 	fp2SubAssign(t[0], t[2])     // s2 - s1
 	fp2DoubleAssign(t[0])        // r = 2*(s2 - s1)
-	g.f.square(t[6], t[0])       // r^2
+	g.f.Square(t[6], t[0])       // r^2
 	fp2SubAssign(t[6], t[5])     // r^2 - j
-	g.f.mulAssign(t[3], t[4])    // v = u1 * i
+	g.f.MulAssign(t[3], t[4])    // v = u1 * i
 	fp2Double(t[4], t[3])        // 2*v
 	fp2Sub(&r[0], t[6], t[4])    // x3 = r^2 - j - 2*v
 	fp2Sub(t[4], t[3], &r[0])    // v - x3
-	g.f.mul(t[6], t[2], t[5])    // s1 * j
+	g.f.Mul(t[6], t[2], t[5])    // s1 * j
 	fp2DoubleAssign(t[6])        // 2 * s1 * j
-	g.f.mulAssign(t[0], t[4])    // r * (v - x3)
+	g.f.MulAssign(t[0], t[4])    // r * (v - x3)
 	fp2Sub(&r[1], t[0], t[6])    // y3 = r * (v - x3) - (2 * s1 * j)
 	fp2Add(t[0], &p1[2], &p2[2]) // z1 + z2
-	g.f.squareAssign(t[0])       // (z1 + z2)^2
+	g.f.SquareAssign(t[0])       // (z1 + z2)^2
 	fp2SubAssign(t[0], t[7])     // (z1 + z2)^2 - z1z1
 	fp2SubAssign(t[0], t[8])     // (z1 + z2)^2 - z1z1 - z2z2
-	g.f.mul(&r[2], t[0], t[1])   // z3 = ((z1 + z2)^2 - z1z1 - z2z2) * h
+	g.f.Mul(&r[2], t[0], t[1])   // z3 = ((z1 + z2)^2 - z1z1 - z2z2) * h
 	return r
 }
 
@@ -419,34 +419,34 @@ func (g *G2) AddMixed(r, p1, p2 *PointG2) *PointG2 {
 		return r.Set(p1)
 	}
 	t := g.t
-	g.f.square(t[7], &p1[2])    // z1z1
-	g.f.mul(t[1], &p2[0], t[7]) // u2 = x2 * z1z1
-	g.f.mul(t[2], &p1[2], t[7]) // z1z1 * z1
-	g.f.mul(t[0], &p2[1], t[2]) // s2 = y2 * z1z1 * z1
+	g.f.Square(t[7], &p1[2])    // z1z1
+	g.f.Mul(t[1], &p2[0], t[7]) // u2 = x2 * z1z1
+	g.f.Mul(t[2], &p1[2], t[7]) // z1z1 * z1
+	g.f.Mul(t[0], &p2[1], t[2]) // s2 = y2 * z1z1 * z1
 
-	if p1[0].equal(t[1]) && p1[1].equal(t[0]) {
+	if p1[0].Equal(t[1]) && p1[1].Equal(t[0]) {
 		return g.Double(r, p1)
 	}
 
 	fp2SubAssign(t[1], &p1[0]) // h = u2 - x1
-	g.f.square(t[2], t[1])     // hh
+	g.f.Square(t[2], t[1])     // hh
 	fp2Double(t[4], t[2])
 	fp2DoubleAssign(t[4])       // 4hh
-	g.f.mul(t[5], t[1], t[4])   // j = h*i
+	g.f.Mul(t[5], t[1], t[4])   // j = h*i
 	fp2SubAssign(t[0], &p1[1])  // s2 - y1
 	fp2DoubleAssign(t[0])       // r = 2*(s2 - y1)
-	g.f.square(t[6], t[0])      // r^2
+	g.f.Square(t[6], t[0])      // r^2
 	fp2SubAssign(t[6], t[5])    // r^2 - j
-	g.f.mul(t[3], &p1[0], t[4]) // v = x1 * i
+	g.f.Mul(t[3], &p1[0], t[4]) // v = x1 * i
 	fp2Double(t[4], t[3])       // 2*v
 	fp2Sub(&r[0], t[6], t[4])   // x3 = r^2 - j - 2*v
 	fp2Sub(t[4], t[3], &r[0])   // v - x3
-	g.f.mul(t[6], &p1[1], t[5]) // y1 * j
+	g.f.Mul(t[6], &p1[1], t[5]) // y1 * j
 	fp2DoubleAssign(t[6])       // 2 * y1 * j
-	g.f.mulAssign(t[0], t[4])   // r * (v - x3)
+	g.f.MulAssign(t[0], t[4])   // r * (v - x3)
 	fp2Sub(&r[1], t[0], t[6])   // y3 = r * (v - x3) - (2 * y1 * j)
 	fp2Add(t[0], &p1[2], t[1])  // z1 + h
-	g.f.squareAssign(t[0])      // (z1 + h)^2
+	g.f.SquareAssign(t[0])      // (z1 + h)^2
 	fp2SubAssign(t[0], t[7])    // (z1 + h)^2 - z1z1
 	fp2Sub(&r[2], t[0], t[2])   // z3 = (z1 + z2)^2 - z1z1 - hh
 	return r
@@ -459,36 +459,36 @@ func (g *G2) Double(r, p *PointG2) *PointG2 {
 		return r.Set(p)
 	}
 	t := g.t
-	g.f.square(t[0], &p[0])     // a = x^2
-	g.f.square(t[1], &p[1])     // b = y^2
-	g.f.square(t[2], t[1])      // c = b^2
+	g.f.Square(t[0], &p[0])     // a = x^2
+	g.f.Square(t[1], &p[1])     // b = y^2
+	g.f.Square(t[2], t[1])      // c = b^2
 	fp2AddAssign(t[1], &p[0])   // b + x1
-	g.f.squareAssign(t[1])      // (b + x1)^2
+	g.f.SquareAssign(t[1])      // (b + x1)^2
 	fp2SubAssign(t[1], t[0])    // (b + x1)^2 - a
 	fp2SubAssign(t[1], t[2])    // (b + x1)^2 - a - c
 	fp2DoubleAssign(t[1])       // d = 2((b+x1)^2 - a - c)
 	fp2Double(t[3], t[0])       // 2a
 	fp2AddAssign(t[0], t[3])    // e = 3a
-	g.f.square(t[4], t[0])      // f = e^2
+	g.f.Square(t[4], t[0])      // f = e^2
 	fp2Double(t[3], t[1])       // 2d
 	fp2Sub(&r[0], t[4], t[3])   // x3 = f - 2d
 	fp2SubAssign(t[1], &r[0])   // d-x3
 	fp2DoubleAssign(t[2])       //
 	fp2DoubleAssign(t[2])       //
 	fp2DoubleAssign(t[2])       // 8c
-	g.f.mulAssign(t[0], t[1])   // e * (d - x3)
+	g.f.MulAssign(t[0], t[1])   // e * (d - x3)
 	fp2Sub(t[1], t[0], t[2])    // x3 = e * (d - x3) - 8c
-	g.f.mul(t[0], &p[1], &p[2]) // y1 * z1
-	r[1].set(t[1])              //
+	g.f.Mul(t[0], &p[1], &p[2]) // y1 * z1
+	r[1].Set(t[1])              //
 	fp2Double(&r[2], t[0])      // z3 = 2(y1 * z1)
 	return r
 }
 
 // Neg negates a G2 point p and assigns the result to the point at first argument.
 func (g *G2) Neg(r, p *PointG2) *PointG2 {
-	r[0].set(&p[0])
-	fp2Neg(&r[1], &p[1])
-	r[2].set(&p[2])
+	r[0].Set(&p[0])
+	Fp2Neg(&r[1], &p[1])
+	r[2].Set(&p[2])
 	return r
 }
 
@@ -655,7 +655,7 @@ func (g *G2) glvMul(r, p0 *PointG2, v glvVector) *PointG2 {
 // MultiExpBig calculates multi exponentiation. Scalar values are received as big.Int type.
 // Given pairs of G2 point and scalar values `(P_0, e_0), (P_1, e_1), ... (P_n, e_n)`,
 // calculates `r = e_0 * P_0 + e_1 * P_1 + ... + e_n * P_n`.
-// Length of points and scalars are expected to be equal, otherwise an error is returned.
+// Length of points and scalars are expected to be Equal, otherwise an error is returned.
 // Result is assigned to point at first argument.
 func (g *G2) MultiExpBig(r *PointG2, points []*PointG2, scalars []*big.Int) (*PointG2, error) {
 	if len(points) != len(scalars) {
@@ -703,7 +703,7 @@ func (g *G2) MultiExpBig(r *PointG2, points []*PointG2, scalars []*big.Int) (*Po
 }
 
 // MultiExp calculates multi exponentiation. Given pairs of G2 point and scalar values `(P_0, e_0), (P_1, e_1), ... (P_n, e_n)`,
-// calculates `r = e_0 * P_0 + e_1 * P_1 + ... + e_n * P_n`. Length of points and scalars are expected to be equal,
+// calculates `r = e_0 * P_0 + e_1 * P_1 + ... + e_n * P_n`. Length of points and scalars are expected to be Equal,
 // otherwise an error is returned. Result is assigned to point at first argument.
 func (g *G2) MultiExp(r *PointG2, points []*PointG2, scalars []*Fr) (*PointG2, error) {
 	if len(points) != len(scalars) {
@@ -803,11 +803,11 @@ func (g *G2) ClearCofactor(p *PointG2) *PointG2 {
 }
 
 func (g *G2) psi(p *PointG2) {
-	fp2Conjugate(&p[0], &p[0])
-	fp2Conjugate(&p[1], &p[1])
-	fp2Conjugate(&p[2], &p[2])
-	g.f.mul(&p[0], &p[0], &psix)
-	g.f.mul(&p[1], &p[1], &psiy)
+	Fp2Conjugate(&p[0], &p[0])
+	Fp2Conjugate(&p[1], &p[1])
+	Fp2Conjugate(&p[2], &p[2])
+	g.f.Mul(&p[0], &p[0], &psix)
+	g.f.Mul(&p[1], &p[1], &psiy)
 }
 
 func (g *G2) mulX(p *PointG2) {
@@ -834,13 +834,13 @@ func (g *G2) mulX(p *PointG2) {
 // Input byte slice should be a valid field element, otherwise an error is returned.
 func (g *G2) MapToCurve(in []byte) (*PointG2, error) {
 	fp2 := g.f
-	u, err := fp2.fromBytes(in)
+	u, err := fp2.FromBytes(in)
 	if err != nil {
 		return nil, err
 	}
 	x, y := swuMapG2(fp2, u)
 	isogenyMapG2(fp2, x, y)
-	z := new(fe2).one()
+	z := new(Fe2).One()
 	q := &PointG2{*x, *y, *z}
 	g.ClearCofactor(q)
 	return g.Affine(q), nil
@@ -856,10 +856,10 @@ func (g *G2) EncodeToCurve(msg, domain []byte) (*PointG2, error) {
 		return nil, err
 	}
 	fp2 := g.f
-	u := &fe2{*hashRes[0], *hashRes[1]}
+	u := &Fe2{*hashRes[0], *hashRes[1]}
 	x, y := swuMapG2(fp2, u)
 	isogenyMapG2(fp2, x, y)
-	z := new(fe2).one()
+	z := new(Fe2).One()
 	q := &PointG2{*x, *y, *z}
 	g.ClearCofactor(q)
 	return g.Affine(q), nil
@@ -875,11 +875,11 @@ func (g *G2) HashToCurve(msg, domain []byte) (*PointG2, error) {
 		return nil, err
 	}
 	fp2 := g.f
-	u0, u1 := &fe2{*hashRes[0], *hashRes[1]}, &fe2{*hashRes[2], *hashRes[3]}
+	u0, u1 := &Fe2{*hashRes[0], *hashRes[1]}, &Fe2{*hashRes[2], *hashRes[3]}
 	x0, y0 := swuMapG2(fp2, u0)
 	x1, y1 := swuMapG2(fp2, u1)
-	z0 := new(fe2).one()
-	z1 := new(fe2).one()
+	z0 := new(Fe2).One()
+	z1 := new(Fe2).One()
 	p0, p1 := &PointG2{*x0, *y0, *z0}, &PointG2{*x1, *y1, *z1}
 	g.Add(p0, p0, p1)
 	g.Affine(p0)

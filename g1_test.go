@@ -15,29 +15,29 @@ func (g *G1) one() *PointG1 {
 
 func (g *G1) rand() *PointG1 {
 	p := &PointG1{}
-	z, _ := new(fe).rand(rand.Reader)
-	z6, bz6 := new(fe), new(fe)
+	z, _ := new(Fe).Rand(rand.Reader)
+	z6, bz6 := new(Fe), new(Fe)
 	square(z6, z)
 	square(z6, z6)
 	mul(z6, z6, z)
 	mul(z6, z6, z)
 	mul(bz6, z6, b)
 	for {
-		x, _ := new(fe).rand(rand.Reader)
-		y := new(fe)
+		x, _ := new(Fe).Rand(rand.Reader)
+		y := new(Fe)
 		square(y, x)
 		mul(y, y, x)
 		add(y, y, bz6)
-		if sqrt(y, y) {
+		if Sqrt(y, y) {
 			p.Set(&PointG1{*x, *y, *z})
 			break
 		}
 	}
 	if !g.IsOnCurve(p) {
-		panic("rand point must be on curve")
+		panic("Rand point must be on curve")
 	}
 	if g.InCorrectSubgroup(p) {
-		panic("rand point must be out of correct subgroup")
+		panic("Rand point must be out of correct subgroup")
 	}
 	return p
 }
@@ -122,9 +122,9 @@ func TestG1IsOnCurve(t *testing.T) {
 	g := NewG1()
 	zero := g.Zero()
 	if !g.IsOnCurve(zero) {
-		t.Fatal("zero must be on curve")
+		t.Fatal("Zero must be on curve")
 	}
-	one := new(fe).one()
+	one := new(Fe).One()
 	p := &PointG1{*one, *one, *one}
 	if g.IsOnCurve(p) {
 		t.Fatal("(1, 1) is not on curve")
@@ -240,7 +240,7 @@ func TestG1MixedAdd(t *testing.T) {
 		g.AddMixed(r0, a, aAffine)
 		g.Double(r1, a)
 		if !g.Equal(r0, r1) {
-			t.Fatal("mixed addition must double where points are equal")
+			t.Fatal("mixed addition must double where points are Equal")
 		}
 	}
 }
@@ -264,13 +264,13 @@ func TestG1MultiplicationCross(t *testing.T) {
 			t.Fatal("cross multiplication failed (glv, fr)", i)
 		}
 		if !g.Equal(res0, res2) {
-			t.Fatal("cross multiplication failed (glv, big)", i)
+			t.Fatal("cross multiplication failed (glv, Big)", i)
 		}
 		if !g.Equal(res0, res3) {
 			t.Fatal("cross multiplication failed (wnaf, fr)", i)
 		}
 		if !g.Equal(res0, res4) {
-			t.Fatal("cross multiplication failed (wnaf, big)", i)
+			t.Fatal("cross multiplication failed (wnaf, Big)", i)
 		}
 	}
 }
@@ -447,7 +447,7 @@ func TestG1ClearCofactor(t *testing.T) {
 	for i := 0; i < fuz; i++ {
 		p0 := g.rand()
 		if g.InCorrectSubgroup(p0) {
-			t.Fatal("rand point should be out of correct subgroup")
+			t.Fatal("Rand point should be out of correct subgroup")
 		}
 		g.ClearCofactor(p0)
 		if !g.InCorrectSubgroup(p0) {

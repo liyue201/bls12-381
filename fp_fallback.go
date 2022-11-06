@@ -1,3 +1,4 @@
+//go:build !amd64 || generic
 // +build !amd64 generic
 
 // Copyright 2020 ConsenSys Software Inc.
@@ -26,7 +27,7 @@ package bls12381
 
 import "math/bits"
 
-func add(z, x, y *fe) {
+func add(z, x, y *Fe) {
 	var carry uint64
 
 	z[0], carry = bits.Add64(x[0], y[0], 0)
@@ -49,7 +50,7 @@ func add(z, x, y *fe) {
 	}
 }
 
-func addAssign(z, y *fe) {
+func addAssign(z, y *Fe) {
 	var carry uint64
 
 	z[0], carry = bits.Add64(z[0], y[0], 0)
@@ -72,7 +73,7 @@ func addAssign(z, y *fe) {
 	}
 }
 
-func ladd(z, x, y *fe) {
+func ladd(z, x, y *Fe) {
 	var carry uint64
 
 	z[0], carry = bits.Add64(x[0], y[0], 0)
@@ -83,7 +84,7 @@ func ladd(z, x, y *fe) {
 	z[5], _ = bits.Add64(x[5], y[5], carry)
 }
 
-func laddAssign(z, y *fe) {
+func laddAssign(z, y *Fe) {
 	var carry uint64
 
 	z[0], carry = bits.Add64(z[0], y[0], 0)
@@ -94,7 +95,7 @@ func laddAssign(z, y *fe) {
 	z[5], _ = bits.Add64(z[5], y[5], carry)
 }
 
-func double(z, x *fe) {
+func double(z, x *Fe) {
 	var carry uint64
 
 	z[0], carry = bits.Add64(x[0], x[0], 0)
@@ -117,7 +118,7 @@ func double(z, x *fe) {
 	}
 }
 
-func doubleAssign(z *fe) {
+func doubleAssign(z *Fe) {
 	var carry uint64
 
 	z[0], carry = bits.Add64(z[0], z[0], 0)
@@ -140,7 +141,7 @@ func doubleAssign(z *fe) {
 	}
 }
 
-func ldouble(z, x *fe) {
+func ldouble(z, x *Fe) {
 	var carry uint64
 
 	z[0], carry = bits.Add64(x[0], x[0], 0)
@@ -151,7 +152,7 @@ func ldouble(z, x *fe) {
 	z[5], _ = bits.Add64(x[5], x[5], carry)
 }
 
-func sub(z, x, y *fe) {
+func sub(z, x, y *Fe) {
 	var b uint64
 	z[0], b = bits.Sub64(x[0], y[0], 0)
 	z[1], b = bits.Sub64(x[1], y[1], b)
@@ -170,7 +171,7 @@ func sub(z, x, y *fe) {
 	}
 }
 
-func subAssign(z, y *fe) {
+func subAssign(z, y *Fe) {
 	var b uint64
 	z[0], b = bits.Sub64(z[0], y[0], 0)
 	z[1], b = bits.Sub64(z[1], y[1], b)
@@ -189,7 +190,7 @@ func subAssign(z, y *fe) {
 	}
 }
 
-func lsubAssign(z, y *fe) {
+func lsubAssign(z, y *Fe) {
 	var b uint64
 	z[0], b = bits.Sub64(z[0], y[0], 0)
 	z[1], b = bits.Sub64(z[1], y[1], b)
@@ -199,9 +200,9 @@ func lsubAssign(z, y *fe) {
 	z[5], b = bits.Sub64(z[5], y[5], b)
 }
 
-func neg(z, x *fe) {
-	if x.isZero() {
-		z.zero()
+func neg(z, x *Fe) {
+	if x.IsZero() {
+		z.Zero()
 		return
 	}
 	var borrow uint64
@@ -213,7 +214,7 @@ func neg(z, x *fe) {
 	z[5], _ = bits.Sub64(1873798617647539866, x[5], borrow)
 }
 
-func mul(z, x, y *fe) {
+func mul(z, x, y *Fe) {
 
 	var t [6]uint64
 	var c [3]uint64
@@ -333,7 +334,7 @@ func mul(z, x, y *fe) {
 	}
 }
 
-func square(z, x *fe) {
+func square(z, x *Fe) {
 
 	var t [6]uint64
 	var c [3]uint64
@@ -453,7 +454,7 @@ func square(z, x *fe) {
 	}
 }
 
-func wadd(z, x, y *wfe) {
+func wadd(z, x, y *Wfe) {
 	var carry uint64
 
 	z[0], carry = bits.Add64(x[0], y[0], 0)
@@ -480,11 +481,11 @@ func wadd(z, x, y *wfe) {
 	}
 }
 
-func waddAssign(x, y *wfe) {
+func waddAssign(x, y *Wfe) {
 	wadd(x, x, y)
 }
 
-func lwadd(z, x, y *wfe) {
+func lwadd(z, x, y *Wfe) {
 	var carry uint64
 
 	z[0], carry = bits.Add64(x[0], y[0], 0)
@@ -501,11 +502,11 @@ func lwadd(z, x, y *wfe) {
 	z[11], _ = bits.Add64(x[11], y[11], carry)
 }
 
-func lwaddAssign(x, y *wfe) {
+func lwaddAssign(x, y *Wfe) {
 	lwadd(x, x, y)
 }
 
-func wsub(z, x, y *wfe) {
+func wsub(z, x, y *Wfe) {
 	var b uint64
 	z[0], b = bits.Sub64(x[0], y[0], 0)
 	z[1], b = bits.Sub64(x[1], y[1], b)
@@ -530,11 +531,11 @@ func wsub(z, x, y *wfe) {
 	}
 }
 
-func wsubAssign(x, y *wfe) {
+func wsubAssign(x, y *Wfe) {
 	wsub(x, x, y)
 }
 
-func lwsub(z, x, y *wfe) {
+func lwsub(z, x, y *Wfe) {
 	var b uint64
 	z[0], b = bits.Sub64(x[0], y[0], 0)
 	z[1], b = bits.Sub64(x[1], y[1], b)
@@ -550,11 +551,11 @@ func lwsub(z, x, y *wfe) {
 	z[11], b = bits.Sub64(x[11], y[11], b)
 }
 
-func lwsubAssign(x, y *wfe) {
+func lwsubAssign(x, y *Wfe) {
 	lwsub(x, x, y)
 }
 
-func wdouble(z, x *wfe) {
+func wdouble(z, x *Wfe) {
 	var carry uint64
 
 	z[0], carry = bits.Add64(x[0], x[0], 0)
@@ -581,11 +582,11 @@ func wdouble(z, x *wfe) {
 	}
 }
 
-func wdoubleAssign(x *wfe) {
+func wdoubleAssign(x *Wfe) {
 	wdouble(x, x)
 }
 
-func lwdouble(z, x *wfe) {
+func lwdouble(z, x *Wfe) {
 	var carry uint64
 
 	z[0], carry = bits.Add64(x[0], x[0], 0)
@@ -602,11 +603,11 @@ func lwdouble(z, x *wfe) {
 	z[11], _ = bits.Add64(x[11], x[11], carry)
 }
 
-func fromWide(c *fe, w *wfe) {
+func fromWide(c *Fe, w *Wfe) {
 	montRed(c, w)
 }
 
-func wmul(w *wfe, a, b *fe) {
+func wmul(w *Wfe, a, b *Fe) {
 
 	var w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11 uint64
 	var a0 = a[0]
@@ -883,7 +884,7 @@ func wmul(w *wfe, a, b *fe) {
 	w[11] = w11
 }
 
-func montRed(c *fe, w *wfe) {
+func montRed(c *Fe, w *Wfe) {
 
 	// Reduces T as T (R^-1) modp
 	// Handbook of Applied Cryptography
@@ -1234,138 +1235,138 @@ func montRed(c *fe, w *wfe) {
 	sub(c, c, &modulus)
 }
 
-func fp2Add(c, a, b *fe2) {
+func fp2Add(c, a, b *Fe2) {
 	add(&c[0], &a[0], &b[0])
 	add(&c[1], &a[1], &b[1])
 }
 
-func fp2AddAssign(a, b *fe2) {
+func fp2AddAssign(a, b *Fe2) {
 	addAssign(&a[0], &b[0])
 	addAssign(&a[1], &b[1])
 }
 
-func fp2Ladd(c, a, b *fe2) {
+func fp2Ladd(c, a, b *Fe2) {
 	ladd(&c[0], &a[0], &b[0])
 	ladd(&c[1], &a[1], &b[1])
 }
 
-func fp2LaddAssign(a, b *fe2) {
+func fp2LaddAssign(a, b *Fe2) {
 	laddAssign(&a[0], &b[0])
 	laddAssign(&a[1], &b[1])
 }
 
-func fp2Double(c, a *fe2) {
+func fp2Double(c, a *Fe2) {
 	double(&c[0], &a[0])
 	double(&c[1], &a[1])
 }
 
-func fp2DoubleAssign(a *fe2) {
+func fp2DoubleAssign(a *Fe2) {
 	doubleAssign(&a[0])
 	doubleAssign(&a[1])
 }
 
-func fp2Ldouble(c, a *fe2) {
+func fp2Ldouble(c, a *Fe2) {
 	ldouble(&c[0], &a[0])
 	ldouble(&c[1], &a[1])
 }
 
-func fp2Sub(c, a, b *fe2) {
+func fp2Sub(c, a, b *Fe2) {
 	sub(&c[0], &a[0], &b[0])
 	sub(&c[1], &a[1], &b[1])
 }
 
-func fp2SubAssign(c, a *fe2) {
+func fp2SubAssign(c, a *Fe2) {
 	subAssign(&c[0], &a[0])
 	subAssign(&c[1], &a[1])
 }
 
-func mulByNonResidue(c, a *fe2) {
-	t := new(fe)
+func mulByNonResidue(c, a *Fe2) {
+	t := new(Fe)
 	sub(t, &a[0], &a[1])
 	add(&c[1], &a[0], &a[1])
-	c[0].set(t)
+	c[0].Set(t)
 }
 
-func mulByNonResidueAssign(a *fe2) {
-	t := new(fe)
+func mulByNonResidueAssign(a *Fe2) {
+	t := new(Fe)
 	sub(t, &a[0], &a[1])
 	add(&a[1], &a[0], &a[1])
-	a[0].set(t)
+	a[0].Set(t)
 }
 
-func wfp2Add(c, a, b *wfe2) {
+func wfp2Add(c, a, b *Wfe2) {
 	wadd(&c[0], &a[0], &b[0])
 	wadd(&c[1], &a[1], &b[1])
 }
 
-func wfp2AddAssign(c, a *wfe2) {
+func wfp2AddAssign(c, a *Wfe2) {
 	waddAssign(&c[0], &a[0])
 	waddAssign(&c[1], &a[1])
 }
 
-func wfp2Ladd(c, a, b *wfe2) {
+func wfp2Ladd(c, a, b *Wfe2) {
 	lwadd(&c[0], &a[0], &b[0])
 	lwadd(&c[1], &a[1], &b[1])
 }
 
-func wfp2LaddAssign(a, b *wfe2) {
+func wfp2LaddAssign(a, b *Wfe2) {
 	lwaddAssign(&a[0], &b[0])
 	lwaddAssign(&a[1], &b[1])
 }
 
-func wfp2AddMixed(c, a, b *wfe2) {
+func wfp2AddMixed(c, a, b *Wfe2) {
 	wadd(&c[0], &a[0], &b[0])
 	lwadd(&c[1], &a[1], &b[1])
 }
 
-func wfp2AddMixedAssign(a, b *wfe2) {
+func wfp2AddMixedAssign(a, b *Wfe2) {
 	waddAssign(&a[0], &b[0])
 	lwaddAssign(&a[1], &b[1])
 }
 
-func wfp2Sub(c, a, b *wfe2) {
+func wfp2Sub(c, a, b *Wfe2) {
 	wsub(&c[0], &a[0], &b[0])
 	wsub(&c[1], &a[1], &b[1])
 }
 
-func wfp2SubAssign(a, b *wfe2) {
+func wfp2SubAssign(a, b *Wfe2) {
 	wsub(&a[0], &a[0], &b[0])
 	wsub(&a[1], &a[1], &b[1])
 }
 
-func wfp2SubMixed(c, a, b *wfe2) {
+func wfp2SubMixed(c, a, b *Wfe2) {
 	wsub(&c[0], &a[0], &b[0])
 	lwsub(&c[1], &a[1], &b[1])
 }
 
-func wfp2SubMixedAssign(a, b *wfe2) {
+func wfp2SubMixedAssign(a, b *Wfe2) {
 	wsubAssign(&a[0], &b[0])
 	lwsubAssign(&a[1], &b[1])
 }
 
-func wfp2Double(c, a *wfe2) {
+func wfp2Double(c, a *Wfe2) {
 	wdouble(&c[0], &a[0])
 	wdouble(&c[1], &a[1])
 }
 
-func wfp2DoubleAssign(a *wfe2) {
+func wfp2DoubleAssign(a *Wfe2) {
 	wdoubleAssign(&a[0])
 	wdoubleAssign(&a[1])
 }
 
-func wfp2MulByNonResidue(c, a *wfe2) {
-	wt0 := &wfe{}
+func wfp2MulByNonResidue(c, a *Wfe2) {
+	wt0 := &Wfe{}
 	wadd(wt0, &a[0], &a[1])
 	wsub(&c[0], &a[0], &a[1])
 	c[1].set(wt0)
 }
 
-func wfp2MulByNonResidueAssign(a *wfe2) {
-	wt0 := &wfe{}
+func wfp2MulByNonResidueAssign(a *Wfe2) {
+	wt0 := &Wfe{}
 	wadd(wt0, &a[0], &a[1])
 	wsub(&a[0], &a[0], &a[1])
 	a[1].set(wt0)
 }
 
-var wfp2Mul func(c *wfe2, a, b *fe2) = wfp2MulGeneric
-var wfp2Square func(c *wfe2, a *fe2) = wfp2SquareGeneric
+var wfp2Mul func(c *Wfe2, a, b *Fe2) = Wfp2MulGeneric
+var wfp2Square func(c *Wfe2, a *Fe2) = Wfp2SquareGeneric
